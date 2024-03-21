@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 namespace Corby.Option
 {
-    public static class Utils
+    public static partial class Utils
     {
         public static Option<T> Some<T>(this T value)
         {
-            
             if (value is null)
             {
                 return new None<T>();
@@ -57,19 +56,17 @@ namespace Corby.Option
         
         public static T UnwrapOr<T>(this Option<T> option, T value)
         {
-            return option is Some<T> some ? some.Value : value;
+            if (option is Some<T> some)
+            {
+                return some.Value;
+            }
+            
+            return value ?? throw new UnwrapException(option.ToString());
         }
         
         public static T Unwrap<T>(this Option<T> option)
         {
             return option is Some<T> some ? some.Value : throw new UnwrapException(option.ToString());
-        }
-    }
-
-    public class UnwrapException : Exception
-    {
-        public UnwrapException(string optionToString) : base($"Unwrap failed: {optionToString}")
-        {
         }
     }
 }
