@@ -2,11 +2,11 @@
   "name": "com.corby.option",
   "displayName": "Option for unity",
   "description": "Option to replace Nullable as in functional programming for Unity.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "unity": "2022.3",
   "licensesUrl": "https://github.com/CorbyO/Option/blob/main/LICENSE",
   "author": {
-    "name": "윤 희대군",
+    "name": "Yun Heuideagoon",
     "email": "corbyo@protonmail.com"
   },
   "keywords": [ "option", "function", "rusty", "rust" ]
