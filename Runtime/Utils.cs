@@ -41,7 +41,7 @@ namespace Corby.Option
             return option is None<T>;
         }
 
-        public static bool IsSome<T>(this Option<T> option)
+        public static bool IsSome<T>(this Option<T> option) 
         {
             return option is Some<T>;
         }

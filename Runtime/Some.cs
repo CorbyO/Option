@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Corby.Option
 {
+    [Serializable]
     public readonly struct Some<T> : Option<T>, IDisposable
     {
         public readonly T Value;

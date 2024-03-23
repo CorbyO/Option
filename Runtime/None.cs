@@ -2,6 +2,7 @@
 
 namespace Corby.Option
 {
+    [Serializable]
     public readonly struct None<T> : Option<T>
     {
         /// <summary>

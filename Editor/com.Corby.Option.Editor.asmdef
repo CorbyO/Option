@@ -1,8 +1,12 @@
 {
-    "name": "com.Corby.Option",
-    "rootNamespace": "Corby.Option",
-    "references": [],
-    "includePlatforms": [],
+    "name": "com.Corby.Option.Editor",
+    "rootNamespace": "Corby.Option.Editor",
+    "references": [
+        "com.Corby.Option"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
