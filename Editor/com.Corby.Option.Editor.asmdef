@@ -1,6 +1,6 @@
 {
     "name": "com.Corby.Option.Editor",
-    "rootNamespace": "Corby.Option.Editor",
+    "rootNamespace": "Corby.Option",
     "references": [
         "com.Corby.Option"
     ],
