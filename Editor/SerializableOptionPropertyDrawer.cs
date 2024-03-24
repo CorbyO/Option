@@ -14,6 +14,12 @@ namespace Corby.Option.Editor
 
             var isSome = property.FindPropertyRelative("_isSome");
             var value = property.FindPropertyRelative("_value");
+            
+            if (isSome == null || value == null)
+            {
+                EditorGUI.LabelField(position, label.text, "Add [Serializable] attribute.");
+                return;
+            }
 
             var isNoneRect = new Rect(position.x, position.y, 20, 20);
             var rect = new Rect(position.x + 20, position.y, position.width - 20, EditorGUI.GetPropertyHeight(value));
@@ -27,13 +33,13 @@ namespace Corby.Option.Editor
                 {
                     realTypeString = value.objectReferenceValue == null ? "None" : "Some";
                 }
-                label.text = $"{realTypeString} | {label.text}";
+                label.text = $"{realTypeString} | {property.name}";
                 EditorGUI.PropertyField(rect, value, label, true);
             }
             else
             {
                 rect = new Rect(position.x + 20, position.y, position.width - 20, position.height);
-                label.text = $"None | {label.text}";
+                label.text = $"None | {property.name}";
                 EditorGUI.LabelField(rect, label);
             }
 
@@ -43,9 +49,14 @@ namespace Corby.Option.Editor
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var isSome = property.FindPropertyRelative("_isSome");
-            if (!isSome.boolValue) return base.GetPropertyHeight(property, label);
-            
             var value = property.FindPropertyRelative("_value");
+            
+            if (isSome == null || value == null ||
+                !isSome.boolValue)
+            {
+                return base.GetPropertyHeight(property, label);
+            }
+            
             return EditorGUI.GetPropertyHeight(value, label, true);
         }
     }
