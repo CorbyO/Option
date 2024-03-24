@@ -4,6 +4,7 @@ Option to replace Nullable as in functional programming for Unity.
 ## Table of Contens
 
 - [Getting started](#getting-started)
+- [Serialization](#serialization)
 
 # Getting started
 ```csharp
@@ -59,6 +60,50 @@ void Func()
         UnityEngine.Debug.log($"{a.Sub(c)}"); // print "a: 3" because None isn't calculated
         UnityEngine.Debug.log($"{b.Mul(a)}"); // print "a: 21"
         UnityEngine.Debug.log($"{b.Div(c)}"); // print "a: 7" because None isn't calculated
+    }
+}
+```
+
+# Serialization
+![image](https://github.com/CorbyO/Option/assets/17669733/c6e738f0-28be-4257-948e-a7c8cdf2ba2d)  
+This is a simple example of how to serialize a class or struct that contains Option.  
+i don't found serialize for interface so you want to serialize the option, you use the SerializableOption class.
+
+```csharp
+// good
+[Serializable]
+public struct TestStruct
+{
+    public SerializableOption<Vector3> OptionVector3;
+    public SerializableOption<Quaternion> OptionQuaternion;
+    public SerializableOption<Transform> OptionTransform;
+}
+
+// bad: Serialize is fail because [Serializable] is not applied.
+public struct TestStruct2
+{
+    public SerializableOption<int> i;
+}
+
+// good
+[Serializable]
+public class TestClass
+{
+    public SerializableOption<int> OptionInt;
+    public SerializableOption<float> OptionFloat;
+    public SerializableOption<string> OptionString;
+    public SerializableOption<TestStruct> OptionTestStruct;
+    public SerializableOption<TestStruct2> OptionTestStruct2;
+}
+
+
+public class TestComponent : MonoBehaviour
+{
+    public SerializableOption<TestClass> OptionTestClass;
+    
+    void Awake()
+    {
+        var option = OptionTestClass.Get(); // Some<TestClass> or None<TestClass>
     }
 }
 ```
