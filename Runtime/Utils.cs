@@ -5,6 +5,7 @@ namespace Corby.Option
 {
     public delegate bool SomePredicate<in T>(T target);
     public delegate T SomeFactory<T>(T some);
+    public delegate R SomeFactory<out R, in T>(T some);
     
     public static partial class Utils
     {
@@ -17,13 +18,48 @@ namespace Corby.Option
 
             return new Some<T>(value);
         }
-        
-        public static bool IsAnd<T>(this Option<T> option, T value)
+
+        public static Option<T> CheckedSub<T>(this T value, T target)
         {
-            return option switch
+            return value.Equals(target) ? value.Some() : new None<T>();
+        }
+        
+        /// <summary>
+        /// If <see cref="option1"/> and <see cref="option2"/> is <see cref="Some{T}"/>, return <see cref="option2"/>.<br/>
+        /// else return <see cref="None{T}"/>.
+        /// </summary>
+        /// <param name="option1"></param>
+        /// <param name="option2"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Option<T> And<T>(this Option<T> option1, Option<T> option2)
+        {
+            return option1 switch
             {
-                Some<T> { Value: var v } => v.Equals(value),
-                _ => false
+                Some<T> => option2 switch
+                {
+                    Some<T> => option2,
+                    _ => new None<T>()
+                },
+                _ => new None<T>()
+            };
+        }
+        
+        /// <summary>
+        /// If <see cref="option1"/> or <see cref="option2"/> is <see cref="Some{T}"/>, return option with <see cref="Some{T}"/>.<br/>
+        /// else return <see cref="None{T}"/>.<br/>
+        /// If both <see cref="option1"/> and <see cref="option2"/> is <see cref="Some{T}"/>, return <see cref="option1"/>.
+        /// </summary>
+        /// <param name="option1"></param>
+        /// <param name="option2"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Option<T> Or<T>(this Option<T> option1, Option<T> option2)
+        {
+            return option1 switch
+            {
+                Some<T> => option1,
+                _ => option2
             };
         }
         
@@ -157,12 +193,36 @@ namespace Corby.Option
             return option is Some<T> some ? some.Value : throw new UnwrapException(option.ToString());
         }
         
+        /// <summary>
+        /// If <see cref="option"/> is <see cref="Some{T}"/>, return <see cref="Some{T}"/> with <see cref="predicate"/>.<br/>
+        /// </summary>
+        /// <param name="option"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static Option<T> TakeOrNone<T>(this Option<T> option, SomeFactory<T> predicate)
         {
             return option switch
             {
                 Some<T> { Value: var v } => predicate(v).Some(),
                 _ => new None<T>()
+            };
+        }
+        
+        /// <summary>
+        /// If <see cref="option"/> is <see cref="Some{T}"/>, return <see cref="Some{T}"/> with <see cref="predicate"/>.<br/>
+        /// </summary>
+        /// <param name="option"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="U"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Option<U> TakeOrNone<U, T>(this Option<T> option, SomeFactory<U, T> predicate)
+        {
+            return option switch
+            {
+                Some<T> { Value: var v } => predicate(v).Some(),
+                _ => new None<U>()
             };
         }
         
@@ -203,6 +263,12 @@ namespace Corby.Option
             };
         }
         
+        /// <summary>
+        /// If <see cref="option"/> is <see cref="None{T}"/>, throw <see cref="NoneReferenceException"/>.
+        /// </summary>
+        /// <param name="option"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <exception cref="NoneReferenceException"></exception>
         public static void ThrowIfNone<T>(this Option<T> option)
         {
             if (option is None<T>)
@@ -211,6 +277,13 @@ namespace Corby.Option
             }
         }
         
+        /// <summary>
+        /// If <see cref="option"/> is <see cref="None{T}"/>, throw <see cref="NoneReferenceException"/> with <see cref="message"/>.
+        /// </summary>
+        /// <param name="option"></param>
+        /// <param name="message"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <exception cref="NoneReferenceException"></exception>
         public static void ThrowIfNone<T>(this Option<T> option, string message)
         {
             if (option is None<T>)
