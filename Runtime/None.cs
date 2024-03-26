@@ -2,9 +2,14 @@
 
 namespace Corby.Option
 {
-    [Serializable]
-    public readonly struct None<T> : Option<T>
+    /// <summary>
+    /// Represents a value that does not exist.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public readonly struct None<T> : IEquatable<None<T>>,
+        IEquatable<Option<T>>
     {
+
         /// <summary>
         /// Create <see cref="None"/> without new keyword.
         /// </summary>
@@ -12,12 +17,22 @@ namespace Corby.Option
 
         public bool Equals(Option<T> other)
         {
-            return other is None<T>;
+            return other.Value == null;
+        }
+
+        public bool Equals(None<T> other)
+        {
+            return true;
         }
 
         public override bool Equals(object obj)
         {
-            return obj is None<T>;
+            return obj switch
+            {
+                None<T> none => Equals(none),
+                Option<T> option => Equals(option),
+                _ => false
+            };
         }
 
         public override int GetHashCode()

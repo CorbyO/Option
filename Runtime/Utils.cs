@@ -5,11 +5,11 @@ namespace Corby.Option
 {
     public delegate bool SomePredicate<in T>(T target);
     public delegate T SomeFactory<T>(T some);
-    public delegate R SomeFactory<out R, in T>(T some);
+    public delegate TReturn SomeFactory<out TReturn, in TArg>(TArg some);
     
     public static partial class Utils
     {
-        public static Option<T> Some<T>(this T value)
+        public static Option<T> ToOption<T>(this T value)
         {
             if (value is null)
             {
@@ -18,10 +18,48 @@ namespace Corby.Option
 
             return new Some<T>(value);
         }
+        
+        public static Some<T> ToSome<T>(this T value)
+            where T : struct
+        {
+            return new Some<T>(value);
+        }
+        
+        /// <summary>
+        /// Convert <see cref="Option{T}"/> to <see cref="IEnumerable{T}"/>.<br/>
+        /// If a element is null, convert to <see cref="None{T}"/>.
+        /// </summary>
+        /// <param name="option"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<Option<T>> ToOption<T>(this IEnumerable<T> option)
+        {
+            foreach (var o in option)
+            {
+                yield return o.ToOption();
+            }
+        }
+
+        /// <summary>
+        /// Convert <see cref="Option{T}"/> to <see cref="IEnumerable{T}"/>.<br/>
+        /// If a element is null, convert to <see cref="None{T}"/>.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="option"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<Option<T>> ToOption<T>(this T t, params T[] option)
+        {
+            yield return t.ToOption();
+            foreach (var o in option)
+            {
+                yield return o.ToOption();
+            }
+        }
 
         public static Option<T> CheckedSub<T>(this T value, T target)
         {
-            return value.Equals(target) ? value.Some() : new None<T>();
+            return value.Equals(target) ? value.ToOption() : new None<T>();
         }
         
         /// <summary>
@@ -103,38 +141,6 @@ namespace Corby.Option
                 }
             }
         }
-
-        /// <summary>
-        /// Convert <see cref="Option{T}"/> to <see cref="IEnumerable{T}"/>.<br/>
-        /// If a element is null, convert to <see cref="None{T}"/>.
-        /// </summary>
-        /// <param name="option"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IEnumerable<Option<T>> ToOption<T>(this IEnumerable<T> option)
-        {
-            foreach (var o in option)
-            {
-                yield return o.Some();
-            }
-        }
-
-        /// <summary>
-        /// Convert <see cref="Option{T}"/> to <see cref="IEnumerable{T}"/>.<br/>
-        /// If a element is null, convert to <see cref="None{T}"/>.
-        /// </summary>
-        /// <param name="t"></param>
-        /// <param name="option"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IEnumerable<Option<T>> ToOption<T>(this T t, params T[] option)
-        {
-            yield return t.Some();
-            foreach (var o in option)
-            {
-                yield return o.Some();
-            }
-        }
         
         /// <summary>
         /// Convert <see cref="Some{T}"/> to <see cref="IEnumerable{T}"/>.<br/>
@@ -149,7 +155,7 @@ namespace Corby.Option
             {
                 if (o is not null)
                 {
-                    yield return o.Some();
+                    yield return o.ToOption();
                 }
             }
         }
@@ -166,14 +172,14 @@ namespace Corby.Option
         {
             if (t is not null)
             {
-                yield return t.Some();
+                yield return t.ToOption();
             }
             
             foreach (var o in option)
             {
                 if (o is not null)
                 {
-                    yield return o.Some();
+                    yield return o.ToOption();
                 }
             }
         }
@@ -204,7 +210,7 @@ namespace Corby.Option
         {
             return option switch
             {
-                Some<T> { Value: var v } => predicate(v).Some(),
+                Some<T> { Value: var v } => predicate(v).ToOption(),
                 _ => new None<T>()
             };
         }
@@ -221,7 +227,7 @@ namespace Corby.Option
         {
             return option switch
             {
-                Some<T> { Value: var v } => predicate(v).Some(),
+                Some<T> { Value: var v } => predicate(v).ToOption(),
                 _ => new None<U>()
             };
         }
@@ -240,7 +246,7 @@ namespace Corby.Option
             return option1 switch
             {
                 Some<T1> { Value: var v1 } when option2 is Some<T2> { Value: var v2 } => 
-                    new ValueTuple<T1, T2>(v1, v2).Some(),
+                    new ValueTuple<T1, T2>(v1, v2).ToOption(),
                 _ => new None<ValueTuple<T1, T2>>()
             };
         }
@@ -258,7 +264,7 @@ namespace Corby.Option
         {
             return option1 switch
             {
-                Some<T1> { Value: var v1 } => new ValueTuple<T1, T2>(v1, option2).Some(),
+                Some<T1> { Value: var v1 } => new ValueTuple<T1, T2>(v1, option2).ToOption(),
                 _ => new None<ValueTuple<T1, T2>>()
             };
         }

@@ -1,16 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace Corby.Option
 {
-    [Serializable]
-    public readonly struct Some<T> : Option<T>, IDisposable
+    /// <summary>
+    /// Represents a value that is present.<br/>
+    /// Don't use this class directly, use <see cref="Option{T}"/> instead.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public readonly struct Some<T> : IDisposable,
+        IEquatable<Some<T>>,
+        IEquatable<Option<T>>
     {
-        public readonly T Value;
-        
+        internal readonly T Value;
+
         internal Some(T value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+            
             Value = value;
         }
         
@@ -24,17 +33,23 @@ namespace Corby.Option
 
         public bool Equals(Some<T> other)
         {
-            return Value.Equals(other.Value);
+            return other.Value.Equals(Value);
         }
 
         public bool Equals(Option<T> other)
-        {
-            return other is Some<T> some && Equals(some);
+        { 
+            if (other.Value == null) return false;
+            return other.Value.Equals(Value);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is Some<T> other && Equals(other);
+            return obj switch
+            {
+                Some<T> some => Equals(some),
+                Option<T> option => Equals(option),
+                _ => false
+            };
         }
 
         public override int GetHashCode()
