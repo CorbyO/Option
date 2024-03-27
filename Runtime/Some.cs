@@ -7,11 +7,12 @@ namespace Corby.Option
     /// Don't use this class directly, use <see cref="Option{T}"/> instead.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public readonly struct Some<T> : IDisposable,
+    public readonly struct Some<T> : IOptionable,
+        IDisposable,
         IEquatable<Some<T>>,
         IEquatable<Option<T>>
     {
-        internal readonly T Value;
+        public readonly T Value;
 
         internal Some(T value)
         {
@@ -38,8 +39,7 @@ namespace Corby.Option
 
         public bool Equals(Option<T> other)
         { 
-            if (other.Value == null) return false;
-            return other.Value.Equals(Value);
+            return other.IsSome && other.Value.Equals(Value);
         }
 
         public override bool Equals(object obj)

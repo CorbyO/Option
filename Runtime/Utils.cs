@@ -94,7 +94,7 @@ namespace Corby.Option
         /// <returns></returns>
         public static Option<T> Or<T>(this Option<T> option1, Option<T> option2)
         {
-            return option1 switch
+            return option1.Unwrap() switch
             {
                 Some<T> => option1,
                 _ => option2
@@ -103,7 +103,7 @@ namespace Corby.Option
         
         public static bool Is<T>(this Option<T> option, SomePredicate<T> value)
         {
-            return option switch
+            return option.Unwrap() switch
             {
                 Some<T> { Value: var v } => value(v),
                 _ => false
@@ -112,19 +112,19 @@ namespace Corby.Option
 
         public static bool IsNone<T>(this Option<T> option)
         {
-            return option is None<T>;
+            return option.Unwrap() is None<T>;
         }
 
         public static bool IsSome<T>(this Option<T> option) 
         {
-            return option is Some<T>;
+            return option.Unwrap() is Some<T>;
         }
         
         public static IEnumerable<T> WithoutNone<T>(this IEnumerable<Option<T>> option)
         {
             foreach (var o in option)
             {
-                if (o is Some<T> some)
+                if (o.Unwrap() is Some<T> some)
                 {
                     yield return some.Value;
                 }
@@ -135,7 +135,7 @@ namespace Corby.Option
         {
             foreach (var o in option)
             {
-                if (o is Some<T> some)
+                if (o.Unwrap() is Some<T> some)
                 {
                     yield return some.Value;
                 }
@@ -186,7 +186,7 @@ namespace Corby.Option
         
         public static T UnwrapOr<T>(this Option<T> option, T value)
         {
-            if (option is Some<T> some)
+            if (option.Unwrap() is Some<T> some)
             {
                 return some.Value;
             }
@@ -196,7 +196,7 @@ namespace Corby.Option
         
         public static T Unwrap<T>(this Option<T> option)
         {
-            return option is Some<T> some ? some.Value : throw new UnwrapException(option.ToString());
+            return option.Unwrap() is Some<T> some ? some.Value : throw new UnwrapException(option.ToString());
         }
         
         /// <summary>
@@ -208,7 +208,7 @@ namespace Corby.Option
         /// <returns></returns>
         public static Option<T> TakeOrNone<T>(this Option<T> option, SomeFactory<T> predicate)
         {
-            return option switch
+            return option.Unwrap() switch
             {
                 Some<T> { Value: var v } => predicate(v).ToOption(),
                 _ => new None<T>()
@@ -220,15 +220,15 @@ namespace Corby.Option
         /// </summary>
         /// <param name="option"></param>
         /// <param name="predicate"></param>
-        /// <typeparam name="U"></typeparam>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TOut"></typeparam>
+        /// <typeparam name="TIn"></typeparam>
         /// <returns></returns>
-        public static Option<U> TakeOrNone<U, T>(this Option<T> option, SomeFactory<U, T> predicate)
+        public static Option<TOut> TakeOrNone<TOut, TIn>(this Option<TIn> option, SomeFactory<TOut, TIn> predicate)
         {
-            return option switch
+            return option.Unwrap() switch
             {
-                Some<T> { Value: var v } => predicate(v).ToOption(),
-                _ => new None<U>()
+                Some<TIn> { Value: var v } => predicate(v).ToOption(),
+                _ => new None<TOut>()
             };
         }
         
@@ -243,9 +243,9 @@ namespace Corby.Option
         /// <returns></returns>
         public static Option<ValueTuple<T1, T2>> Zip<T1, T2>(this Option<T1> option1, Option<T2> option2)
         {
-            return option1 switch
+            return option1.Unwrap() switch
             {
-                Some<T1> { Value: var v1 } when option2 is Some<T2> { Value: var v2 } => 
+                Some<T1> { Value: var v1 } when option2.Unwrap() is Some<T2> { Value: var v2 } => 
                     new ValueTuple<T1, T2>(v1, v2).ToOption(),
                 _ => new None<ValueTuple<T1, T2>>()
             };
@@ -262,7 +262,7 @@ namespace Corby.Option
         /// <returns></returns>
         public static Option<ValueTuple<T1, T2>> Zip<T1, T2>(this Option<T1> option1, T2 option2)
         {
-            return option1 switch
+            return option1.Unwrap() switch
             {
                 Some<T1> { Value: var v1 } => new ValueTuple<T1, T2>(v1, option2).ToOption(),
                 _ => new None<ValueTuple<T1, T2>>()
@@ -277,7 +277,7 @@ namespace Corby.Option
         /// <exception cref="NoneReferenceException"></exception>
         public static void ThrowIfNone<T>(this Option<T> option)
         {
-            if (option is None<T>)
+            if (option.IsSome)
             {
                 throw new NoneReferenceException(typeof(T).Name);
             }
@@ -292,7 +292,7 @@ namespace Corby.Option
         /// <exception cref="NoneReferenceException"></exception>
         public static void ThrowIfNone<T>(this Option<T> option, string message)
         {
-            if (option is None<T>)
+            if (option.Unwrap() is None<T>)
             {
                 throw new NoneReferenceException(typeof(T).Name, message);
             }

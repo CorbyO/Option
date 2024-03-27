@@ -79,5 +79,10 @@ namespace Corby.Option
                 v.Dispose();
             }
         }
+        
+        public IOptionable Unwrap()
+        {
+            return IsSome ? new Some<T>(Value) : new None<T>();
+        }
     }
 }

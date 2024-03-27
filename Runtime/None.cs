@@ -6,7 +6,8 @@ namespace Corby.Option
     /// Represents a value that does not exist.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public readonly struct None<T> : IEquatable<None<T>>,
+    public readonly struct None<T> : IOptionable,
+        IEquatable<None<T>>,
         IEquatable<Option<T>>
     {
 
@@ -17,7 +18,7 @@ namespace Corby.Option
 
         public bool Equals(Option<T> other)
         {
-            return other.Value == null;
+            return other.IsSome == false;
         }
 
         public bool Equals(None<T> other)
