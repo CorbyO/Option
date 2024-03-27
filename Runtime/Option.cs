@@ -1,5 +1,5 @@
-﻿#nullable enable
-using System;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Corby.Option
@@ -14,8 +14,8 @@ namespace Corby.Option
         IEquatable<None<T>>,
         IEquatable<Some<T>>
     {
-        [SerializeField]
-        internal T? Value;
+        [SerializeField] internal T Value;
+        [SerializeField] internal bool IsSome;
 
         public static implicit operator Option<T>(None<T> none) => new(none);
         public static implicit operator Option<T>(Some<T> some) => new(some);
@@ -23,26 +23,28 @@ namespace Corby.Option
         private Option(None<T> none)
         {
             Value = default;
+            IsSome = false;
         }
 
         private Option(Some<T> some)
         {
             Value = some.Value;
+            IsSome = true;
         }
 
         public bool Equals(Option<T> other)
         {
-            if (Value == null) return other.Value == null;
+            if (IsSome == false) return other.IsSome == false;
             return Value.Equals(other.Value);
         }
 
         public bool Equals(None<T> other)
         {
-            return Value == null;
+            return IsSome == false;
         }
-
         public bool Equals(Some<T> other)
         {
+            if (IsSome == false) return false;
             if (Value == null) return false;
             return Value.Equals(other.Value);
         }
@@ -71,7 +73,7 @@ namespace Corby.Option
         public void Dispose()
         {
             if (Value == null) return;
-            
+
             if (Value is IDisposable v)
             {
                 v.Dispose();
