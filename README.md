@@ -17,7 +17,7 @@ Option<Transform> parent = transform.parent.ToOption(); // Some<> or None
 
 ### Return without null
 ```csharp
-public static Option<int> GetParent<T>(this Transform transform)
+public static Option<Transform> GetParent<T>(this Transform transform)
 {
     return transform.parent.ToOption();
 }
