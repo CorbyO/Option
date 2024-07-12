@@ -6,6 +6,14 @@ Option to replace Nullable as in functional programming for Unity.
 - [Getting started](#getting-started)
 - [Serialization](#serialization)
 
+# Install
+# Via Git
+add `"com.corby.option": "https://github.com/CorbyO/Option.git"` to `Packages/manifest.json`.
+# Via OpenUPM
+```
+openupm add com.corby.option
+```
+
 # Getting started
 
 ### Initialize
